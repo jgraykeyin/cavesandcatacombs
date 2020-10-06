@@ -45,7 +45,7 @@ def lookRoom():
 def moveNext():
     global roomMsg
     global hasMonster
-    roomMsg = "You continue into the next room...\n"
+    roomMsg = "You step into the next room.\n"
 
     # Creating a new room will always contain at least 1 monster, so set hasMonster to true
     hasMonster = True
@@ -57,6 +57,8 @@ def moveNext():
     while x < monsterRoll:
         spawnMonster()
         x+=1
+    print("Onward!")
+    playsound('/Users/justingray/steps.mp3')
 
 def spawnMonster():
     global monsters
