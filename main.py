@@ -3,8 +3,7 @@ import os
 
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
-# Maybe this should be changed to a dictionary?
-player = [20,4,1,1]
+player = {"hp":20,"atk":4,"lvl":1,"xp":1}
 
 # Game settings
 hasMonster = False
@@ -49,7 +48,12 @@ def moveNext():
     hasMonster = True
 
     # Let's spawn our monsters here
-    spawnMonster()
+    x=0
+    y=player["lvl"] * 2
+    monsterRoll = random.randint(1,y)
+    while x < monsterRoll:
+        spawnMonster()
+        x+=1
 
 def spawnMonster():
     global monsters
@@ -58,12 +62,13 @@ def spawnMonster():
     
     lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
     monstername = random.choice(lines)
-    monsters.append(monstername)
+    hproll = random.randint(5,25)
+    monsters.append({"name":monstername,"hp":hproll})
     
 # Check to see if player has died or leveled up
 def statCheck():
     global gameStop
-    if player[0] < 0:
+    if player["hp"] <= 0:
         gameStop = 1
 
 os.system('clear')
@@ -74,6 +79,7 @@ os.system('clear')
 # Start a game loop
 while gameStop == 0:
 
+    # Check for any room-loading messages, then clear it.
     if roomMsg:
         print(roomMsg)
         roomMsg=""
@@ -82,10 +88,10 @@ while gameStop == 0:
     if len(monsters) > 0:
         print("Monsters in this room:")
         for monster in monsters:
-            print("{}\n".format(monster))
+            print("* {} HP {}".format(monster["hp"],monster["name"]))
 
     # Display the player stats
-    print("{} -- HP:{} Atk:{} Lvl:{}".format(playername,player[0],player[1],player[2]))
+    print("\n{} -- HP:{} Atk:{} Lvl:{}".format(playername,player["hp"],player["atk"],player["lvl"]))
 
     # Display the available commands.
     showCommands()
