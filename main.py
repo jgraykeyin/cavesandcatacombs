@@ -11,21 +11,25 @@ hasLoot = False
 roomMsg = ""
 gameStop = 0
 
-# Function to display the currently available player-commands
+# Display the currently available player-commands
 def showCommands():
     global command
-    command = input("Available Commands: [Q]uit [L]ove [M]ook >> ")
+    if hasMonster == True:
+        command = input("Available Commands: [Q]uit [L]ook [A]ttack >> ")
+    else:
+        command = input("Available Commands: [Q]uit [L]ook [M]ove >> ")
 
-
+# Map the input commands to their functions
 def parseCommand(command):
     global gameStop
-    if command.upper() == "M":
+    if command.upper() == "M" and hasMonster == False:
         moveNext()
     elif command.upper() == "L":
         lookRoom()
     elif command.upper() == "Q":
         gameStop = 1
 
+# Check the room for monsters and loot
 def lookRoom():
     if hasLoot == False:
         print("You can't find any loot in this area.\n")
@@ -33,9 +37,18 @@ def lookRoom():
     if hasMonster == False:
         print("You can't see any monsters in this area.\n")
 
+# Load a new area, this should generate monster(s) and item(s)
 def moveNext():
     global roomMsg
-    roomMsg = "You continue into the next room...\n"    
+    global hasMonster
+    roomMsg = "You continue into the next room...\n"
+    hasMonster = True
+    
+# Check to see if player has died or leveled up
+def statCheck():
+    global gameStop
+    if player[0] < 0:
+        gameStop = 1
 
 os.system('clear')
 print("----------------------")
@@ -57,6 +70,9 @@ while gameStop == 0:
 
     # Check for user input commands
     parseCommand(command)
+
+    # Make sure player is still alive
+    statCheck()
 
 
 
