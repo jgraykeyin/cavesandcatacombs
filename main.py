@@ -1,5 +1,6 @@
 import random
 import os
+from playsound import playsound
 
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
@@ -29,6 +30,8 @@ def parseCommand(command):
         lookRoom()
     elif command.upper() == "Q":
         gameStop = 1
+    elif command.upper() == "A":
+        attack()
 
 # Check the room for monsters and loot
 def lookRoom():
@@ -64,6 +67,16 @@ def spawnMonster():
     monstername = random.choice(lines)
     hproll = random.randint(5,25)
     monsters.append({"name":monstername,"hp":hproll})
+
+def attack():
+    for monster in monsters:
+        atk = random.randint(1,player["atk"])
+        monster["hp"] = monster["hp"] - atk
+
+        level = player["lvl"] * random.randint(1,4)
+        counter = random.randint(1,level)
+        player["hp"] = player["hp"] - counter
+        playsound('/Users/justingray/hit.mp3')
     
 # Check to see if player has died or leveled up
 def statCheck():
