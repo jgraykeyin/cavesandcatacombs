@@ -20,6 +20,8 @@ levelup=False
 lastboss=False
 itemdeath=""
 victory=False
+fireqty=3
+firemax=3
 
 # Loot!
 hpmax = player["hpmax"]
@@ -39,7 +41,10 @@ items = [
 def showCommands():
     global command
     if hasMonster == True:
-        command = input("Available Commands: [Q]uit [L]ook [A]ttack >> ")
+        if player["lvl"] >= 3:
+            command = input("Available Commands: [Q]uit [L]ook [A]ttack [F]ire Spell({}/{}) >> ".format(fireqty,firemax))
+        elif player["lvl"] < 3:
+            command = input("Available Commands: [Q]uit [L]ook [A]ttack >> ")
     elif lastboss == True:
         command = input("Available Commands: [Q]uit [Look]")
     else:
@@ -56,6 +61,8 @@ def parseCommand(command):
         gameStop = 1
     elif command.upper() == "A" and hasMonster == True:
         attack()
+    elif command.upper() == "F" and player["lvl"] >= 3 and fireqty > 0:
+        firespell()
 
 # Check the room for loot
 # Going to try a system of randomly finding good or bad items based on a find-roll
@@ -64,6 +71,7 @@ def lookRoom():
     global roomMsg
     global items
     global itemdeath
+    global gameStop
     statmod = ""
     stype = ""
     if player["hp"] > 1:
@@ -152,11 +160,49 @@ def spawnMonster():
         hproll = random.randint(5,limit)
         monsters.append({"name":monstername,"hp":hproll})
 
+def firespell():
+    global fireqty
+    global hasMonster
+    global roomMsg
+    global levelup
+    fireqty-=1
+    for monster in monsters:
+        dmg = random.randint(5,20)
+        monster["hp"] -= dmg
+
+        if monster["hp"] < 1:
+            xpmax = player["lvl"] * 10
+            xpmin = player["lvl"] * 5
+            xpgain = random.randint(xpmin,xpmax)
+            player["xp"] += xpgain
+            roomMsg="{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
+            try:
+                playsound(os.path.join(__location__, 'defeat.mp3'))
+            except:
+                # Disable the sound effects if it's having trouble playing them
+                pass
+            #Check to see if player leveled up
+            if player["xp"] >= player["xpnext"]:
+                player["lvl"] += 1
+                player["atk"] += 2
+                player["hpmax"] += 5 * player["lvl"]
+                player["hp"] = player["hpmax"]
+                player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
+                roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
+                levelup=True
+
+            monsters.remove(monster)
+    
+    if len(monsters) < 1:
+        hasMonster=0
+
 def attack():
     global lastmonster
     global roomMsg
     global hasMonster
     global levelup
+    global gameStop
+    global victory
     for monster in monsters:
         # Attacking the monster
         atk = random.randint(1,player["atk"])
