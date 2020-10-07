@@ -195,17 +195,31 @@ def attack():
 def statCheck():
     global gameStop
     if player["hp"] <= 0:
+
+        fpath = (os.path.join(__location__, "highscores.txt"))
+        highscore = open(fpath,"a")
         print(" ¯\_(ツ)_/¯")
         if itemdeath != "":
             print("You've been thwarted by a {}!".format(itemdeath))
         else:
             print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
+
+        highscore.write("{} / Areas Explored: {} / Level: {}\n".format(playername,progress, player["lvl"]))
+        highscore.close
         try:
             playsound(os.path.join(__location__, 'gameover.mp3'))
         except:
         # Disable the sound effects if it's having trouble playing them
             pass
+
+        fpath = (os.path.join(__location__, "highscores.txt"))
+        highscore = open(fpath,"r")
+        print("Adventure Log:")
+        scores = highscore.readlines()
+        for score in scores:
+            print(score)
+        highscore.close()
         gameStop = 1
 
 os.system('clear')
