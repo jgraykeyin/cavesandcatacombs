@@ -21,11 +21,17 @@ lastboss=False
 itemdeath=""
 
 # Loot!
+hpmax = player["hpmax"]
 items = [
         {"name":"Red Potion","stattype":"hp","statnum":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!","qty":8},
         {"name":"Green Potion","stattype":"hp","statnum":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!","qty":15},
         {"name":"Coffee","stattype":"hp","statnum":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!","qty":5},
-        {"name":"Power Scroll","stattype":"atk","statnum":2,"positive":1,"desc":"The power scroll increases your Atk by 2!","qty":3}
+        {"name":"Power Scroll","stattype":"atk","statnum":2,"positive":1,"desc":"The power scroll increases your Atk by 2!","qty":5},
+        {"name":"Power Glove","stattype":"atk","statnum":3,"positive":1,"desc":"The power gloves increases your Atk by 3, it's so bad!","qty":3},
+        {"name":"Magic Hero Sword","stattype":"atk","statnum":4,"positive":1,"desc":"You equip the hero sword to gain 4 Atk!","qty":2},
+        {"name":"Slime on a stick","stattype":"atk","statnum":1,"positive":0,"desc":"Your equipment is covered in slime, lost 2 Atk!","qty":4},
+        {"name":"Cure-all Scroll","stattype":"hp","statnum":hpmax,"positive":1,"desc":"The cure scroll heals you entirely!","qty":5},
+        {"name":"Legendary Battle Staff","stattype":"atk","statnum":10,"positive":1,"desc":"The battle staff raises your Atk by 10!","qty":1}
 ]
 
 # Display the currently available player-commands
@@ -134,7 +140,7 @@ def spawnMonster():
     global lastboss
     if progress == 20:
         monstername = "Cyber-Billy Bob"
-        monsters.append({"name":monstername,"hp":250})
+        monsters.append({"name":monstername,"hp":500})
         lastboss = True
     else:
         lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
@@ -272,6 +278,4 @@ while gameStop == 0:
 
     # Make sure player is still alive
     statCheck()
-
-
 
