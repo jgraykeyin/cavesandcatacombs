@@ -7,7 +7,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
-player = {"hpmax":20,"hp":20,"atk":4,"lvl":1,"xp":1}
+player = {"hpmax":20,"hp":20,"atk":4,"lvl":1,"xp":1,"xpnext":20}
 
 # Game settings
 hasMonster = False
@@ -16,6 +16,7 @@ gameStop = 0
 monsters=[]
 lastmonster=""
 progress=0
+levelup=False
 
 # Loot!
 items = [
@@ -82,7 +83,7 @@ def lookRoom():
         else:
             # Reducing player's HP by one if they don't find anything, just to be mean.
             player["hp"] = player["hp"] - 1
-            roomMsg = "You can't find anything here.\nLost 1 HP from all that not-finding.\n"
+            roomMsg = "You can't find anything here.\nLost 1 HP from disappointment.\n"
     else:
         roomMsg = "You don't have enough energy to find things right now.\n"
     
@@ -124,6 +125,7 @@ def attack():
     global lastmonster
     global roomMsg
     global hasMonster
+    global levelup
     for monster in monsters:
         # Attacking the monster
         atk = random.randint(1,player["atk"])
@@ -148,9 +150,15 @@ def attack():
             xpgain = random.randint(player["lvl"],xpmod)
             player["xp"] = player["xp"] + xpmod
 
-            #print("{} defeated!".format(monsters[i]["name"]))
-            #print("{} XP gained!".format(xpgain))
             roomMsg="{} defeated!\n{} XP gained!\n".format(monsters[i]["name"],xpgain)
+
+            #Check to see if player leveled up
+            if player["xp"] >= player["xpnext"]:
+                player["lvl"] += 1
+                player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
+                roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
+                levelup=True
+
             del monsters[i]
             break
 
@@ -168,9 +176,14 @@ def attack():
 def statCheck():
     global gameStop
     if player["hp"] <= 0:
-        print("\nYou've been eaten by a {}! Game Over!".format(lastmonster))
+        print(" ¯\_(ツ)_/¯")
+        print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
-        print(" ¯\_(ツ)_/¯\n")
+        try:
+            playsound(os.path.join(__location__, 'gameover.mp3'))
+        except:
+        # Disable the sound effects if it's having trouble playing them
+            pass
         gameStop = 1
 
 os.system('clear')
@@ -183,6 +196,14 @@ while gameStop == 0:
 
     # Check for any room-loading messages, then clear it.
     if roomMsg:
+        if levelup is True:
+            # Trigger the level-up sound
+            try:
+                playsound(os.path.join(__location__, 'levelup.mp3'))
+            except:
+                # Disable the sound effects if it's having trouble playing them
+                pass
+            levelup = False
         print(roomMsg)
         roomMsg=""
 
