@@ -15,6 +15,7 @@ hasLoot = False
 roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
 gameStop = 0
 monsters=[]
+lastmonster=""
 
 # Display the currently available player-commands
 def showCommands():
@@ -76,21 +77,34 @@ def spawnMonster():
     monsters.append({"name":monstername,"hp":hproll})
 
 def attack():
+    global lastmonster
     for monster in monsters:
         # Attacking the monster
         atk = random.randint(1,player["atk"])
         monster["hp"] = monster["hp"] - atk
 
         if monster["hp"] > 0:
-            # Monster counter-attacking the player
+            # Modifier to generate monster damage rolls...
+            # TODO: turn this into a function, make it a little more dynamic
             level = player["lvl"] * random.randint(1,4)
+
+            # Monster counter-attacking the player
             counter = random.randint(1,level)
             player["hp"] = player["hp"] - counter
+            if player["hp"] < 1:
+                lastmonster = monster["name"]
     
     for i in range(len(monsters)):
         if monsters[i]["hp"] < 1:
-            # print("{} defeated!".format(monsters[i]["name"]))
-            roomMsg="{} defeated!".format(monsters[i]["name"])
+            #Modifier to generate xp gain
+            # TODO: turn this into a function, maybe the same function as monster atk modifier?
+            xpmod = player["lvl"] * 10
+            xpgain = random.randint(player["lvl"],xpmod)
+            player["xp"] = player["xp"] + xpmod
+
+            print("{} defeated!".format(monsters[i]["name"]))
+            print("{} XP gained!".format(xpgain))
+            #roomMsg="{} defeated!".format(monsters[i]["name"])
             del monsters[i]
             break
 
@@ -105,6 +119,7 @@ def attack():
 def statCheck():
     global gameStop
     if player["hp"] <= 0:
+        print("\nYou've been eaten by a {}! Game Over! ¯\_(ツ)_/¯\n".format(lastmonster))
         gameStop = 1
 
 os.system('clear')
