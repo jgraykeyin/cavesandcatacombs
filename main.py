@@ -166,9 +166,10 @@ def attack():
         elif monster["hp"] <= 0:
             #Modifier to generate xp gain
             # TODO: turn this into a function, maybe the same function as monster atk modifier?
-            xpmod = player["lvl"] * 10
-            xpgain = random.randint(player["lvl"],xpmod)
-            player["xp"] = player["xp"] + xpmod
+            xpmax = player["lvl"] * 10
+            xpmin = player["lvl"] * 5
+            xpgain = random.randint(xpmin,xpmax)
+            player["xp"] += xpgain
 
             roomMsg="{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
             try:
