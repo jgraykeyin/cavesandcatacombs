@@ -142,7 +142,7 @@ def spawnMonster():
     global monsters
     global lastboss
     if progress == 20:
-        monstername = "Cyber-Billy Bob"
+        monstername = "Spirit of Billy Bob"
         monsters.append({"name":monstername,"hp":500})
         lastboss = True
     else:
@@ -244,9 +244,10 @@ def statCheck():
         gameStop = 1
 
 os.system('clear')
-print("----------------------")
-print("Welcome to The Really Dangerous Place!\nFind the amazing secret treasure to become the hero of all the things!\n")
-playername = input("Player Name: ")
+print("-=-=-=-=-=-=-=-=-=-=-=-")
+print("-= Caves & Catacombs =-")
+print("-=-=-=-=-=-=-=-=-=-=-=-")
+playername = input("Please enter your name: ")
 os.system('clear')
 # Start a game loop
 while gameStop == 0:
@@ -287,4 +288,4 @@ while gameStop == 0:
 
 if victory == True:
     print("You've finished the game and stolen Billy Bob's treasure, good job!")
-    
+    print("Purchase our DLC for a better ending!")
