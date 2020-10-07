@@ -167,8 +167,14 @@ def firespell():
     global levelup
     fireqty-=1
     for monster in monsters:
-        dmg = random.randint(5,20)
+        dmg = random.randint(10,30)
         monster["hp"] -= dmg
+
+        try:
+            playsound(os.path.join(__location__, 'fire.mp3'))
+        except:
+            # Disable the sound effects if it's having trouble playing them
+            pass
 
         if monster["hp"] < 1:
             xpmax = player["lvl"] * 10
@@ -181,6 +187,7 @@ def firespell():
             except:
                 # Disable the sound effects if it's having trouble playing them
                 pass
+
             #Check to see if player leveled up
             if player["xp"] >= player["xpnext"]:
                 player["lvl"] += 1
@@ -192,7 +199,7 @@ def firespell():
                 levelup=True
 
             monsters.remove(monster)
-    
+    roomMsg = roomMsg = "\nThe fire spell blasts all the monsters in the room!"
     if len(monsters) < 1:
         hasMonster=0
 
@@ -208,13 +215,15 @@ def attack():
         atk = random.randint(1,player["atk"])
         monster["hp"] = monster["hp"] - atk
 
+        roomMsg = "You hit the {} for {} HP\n".format(monster["name"],atk)
+
         if monster["hp"] > 0:
             # Modifier to generate monster damage rolls...
             # TODO: turn this into a function, make it a little more dynamic
             level = player["lvl"] * random.randint(1,3)
-
             # Monster counter-attacking the player
             counter = random.randint(1,level)
+            roomMsg = roomMsg + "You take {} damage!".format(counter)
             player["hp"] = player["hp"] - counter
             if player["hp"] < 1:
                 lastmonster = monster["name"]
@@ -229,7 +238,7 @@ def attack():
             if victory == True:
                 gameStop=1
 
-            roomMsg="{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
+            roomMsg=roomMsg + "\n{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
             try:
                 playsound(os.path.join(__location__, 'defeat.mp3'))
             except:
@@ -313,7 +322,7 @@ while gameStop == 0:
 
     # Check to see if we need to list our monsters
     if len(monsters) > 0:
-        print("Monsters in this room:")
+        print("\nMonsters in this room:")
         for monster in monsters:
             print("* {} HP {}".format(monster["hp"],monster["name"]))
     else:
