@@ -2,6 +2,9 @@ import random
 import os
 from playsound import playsound
 
+# This should let files in the current folder be accessible
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
 player = {"hp":20,"atk":4,"lvl":1,"xp":1}
@@ -57,13 +60,13 @@ def moveNext():
     while x < monsterRoll:
         spawnMonster()
         x+=1
-    print("Onward!")
-    playsound('/Users/justingray/steps.mp3')
+
+    print("Searching for the next area...")
+    playsound(os.path.join(__location__, "steps.mp3"))
+    os.system('clear')
 
 def spawnMonster():
     global monsters
-    # This line should set the path location for the file to be the current project directory
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
     
     lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
     monstername = random.choice(lines)
@@ -78,7 +81,7 @@ def attack():
         level = player["lvl"] * random.randint(1,4)
         counter = random.randint(1,level)
         player["hp"] = player["hp"] - counter
-        playsound('/Users/justingray/hit.mp3')
+        playsound(os.path.join(__location__, 'hit.mp3'))
     
 # Check to see if player has died or leveled up
 def statCheck():
