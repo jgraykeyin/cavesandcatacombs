@@ -17,6 +17,7 @@ monsters=[]
 lastmonster=""
 progress=0
 levelup=False
+itemdeath=""
 
 # Loot!
 items = [
@@ -52,6 +53,7 @@ def parseCommand(command):
 def lookRoom():
     global roomMsg
     global items
+    global itemdeath
     statmod = ""
     stype = ""
     if player["hp"] > 1:
@@ -70,6 +72,10 @@ def lookRoom():
                 statmod="-"
                 player[stype] -= item["statnum"]
 
+            if player["hp"] <= 0:
+                itemdeath = item["name"]
+                gameStop=1
+
             if player["hp"] > player["hpmax"]:
                 player["hp"] = player["hpmax"]
 
@@ -87,6 +93,11 @@ def lookRoom():
     else:
         roomMsg = "You don't have enough energy to find things right now.\n"
     
+    try:
+        playsound(os.path.join(__location__, 'find.mp3'))
+    except:
+        # Disable the sound effects if it's having trouble playing them
+        pass   
 
 # Load a new area, this should generate monster(s) and item(s)
 def moveNext():
@@ -155,6 +166,9 @@ def attack():
             #Check to see if player leveled up
             if player["xp"] >= player["xpnext"]:
                 player["lvl"] += 1
+                player["atk"] += 2
+                player["hpmax"] += 5 * player["lvl"]
+                player["hp"] = player["hpmax"]
                 player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
                 roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
                 levelup=True
@@ -177,7 +191,10 @@ def statCheck():
     global gameStop
     if player["hp"] <= 0:
         print(" ¯\_(ツ)_/¯")
-        print("You've been eaten by a {}! Game Over!".format(lastmonster))
+        if itemdeath != "":
+            print("You've been thwarted by a {}!".format(itemdeath))
+        else:
+            print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
         try:
             playsound(os.path.join(__location__, 'gameover.mp3'))
