@@ -7,7 +7,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
-player = {"hp":20,"atk":4,"lvl":1,"xp":1}
+player = {"hpmax":20,"hp":20,"atk":4,"lvl":1,"xp":1}
 
 # Game settings
 hasMonster = False
@@ -19,10 +19,10 @@ progress=0
 
 # Loot!
 items = [
-        {"name":"Red Potion","hp":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!"},
-        {"name":"Green Potion","hp":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!"},
-        {"name":"Coffee","hp":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!"},
-        {"name":"Power Scroll","atk":2,"positive":1,"desc":"The power scroll increases your Atk by 1!"}
+        {"name":"Red Potion","stattype":"hp","statnum":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!","qty":8},
+        {"name":"Green Potion","stattype":"hp","statnum":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!","qty":15},
+        {"name":"Coffee","stattype":"hp","statnum":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!","qty":5},
+        {"name":"Power Scroll","stattype":"atk","statnum":1,"positive":1,"desc":"The power scroll increases your Atk by 1!","qty":3}
 ]
 
 # Display the currently available player-commands
@@ -50,15 +50,39 @@ def parseCommand(command):
 # Items will activate or equip upon finding them, maybe we'll work on an inventory system another day.
 def lookRoom():
     global roomMsg
-
+    global items
+    statmod = ""
+    stype = ""
     if player["hp"] > 1:
         findroll = random.randint(1,20)
         if findroll > 10:
-            roomMsg = "Wow you've found an item!"
+            item = random.choice(items)
+            if item["stattype"] == "atk":
+                stype="atk"
+            else:
+                stype="hp"
+
+            if item["positive"] == 1:
+                statmod="+"
+                player[stype] += item["statnum"]
+            else:
+                statmod="-"
+                player[stype] -= item["statnum"]
+
+            if player["hp"] > player["hpmax"]:
+                player["hp"] = player["hpmax"]
+
+            roomMsg = "You found: {} ({}{} {})\n{}".format(item["name"],statmod,item["statnum"],item["stattype"].upper(),item["desc"])
+
+            # Delete the item from the list if we've found all of them
+            item["qty"] -= 1
+            if item["qty"] < 1:
+                items.remove(item)
+            
         else:
             # Reducing player's HP by one if they don't find anything, just to be mean.
             player["hp"] = player["hp"] - 1
-            roomMsg = "Can't find anything.\nLost 1 HP from all that not-finding.\n"
+            roomMsg = "You can't find anything here.\nLost 1 HP from all that not-finding.\n"
     else:
         roomMsg = "You don't have enough energy to find things right now.\n"
     
@@ -171,7 +195,7 @@ while gameStop == 0:
         hasMonster=False
 
     # Display the player stats
-    print("\n{} -- HP:{} Atk:{} Lvl:{}".format(playername,player["hp"],player["atk"],player["lvl"]))
+    print("\n{} -- HP:{}/{} Atk:{} Lvl:{}".format(playername,player["hp"],player["hpmax"],player["atk"],player["lvl"]))
 
     # Display the available commands.
     showCommands()
