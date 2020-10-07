@@ -219,7 +219,7 @@ def statCheck():
 
         fpath = (os.path.join(__location__, "highscores.txt"))
         highscore = open(fpath,"a")
-        print(" ¯\_(ツ)_/¯")
+        print("\n ¯\_(ツ)_/¯")
         if itemdeath != "":
             print("You've been thwarted by a {}!".format(itemdeath))
         else:
@@ -239,7 +239,7 @@ def statCheck():
         print("Adventure Log:")
         scores = highscore.readlines()
         for score in scores:
-            print(score)
+            print(score, end = '')
         highscore.close()
         gameStop = 1
 
@@ -248,7 +248,7 @@ print("-=-=-=-=-=-=-=-=-=-=-=-")
 print("-= Caves & Catacombs =-")
 print("-=-=-=-=-=-=-=-=-=-=-=-")
 playername = input("Please enter your name: ")
-os.system('clear')
+# os.system('clear')
 # Start a game loop
 while gameStop == 0:
 
