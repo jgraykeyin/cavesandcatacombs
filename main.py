@@ -11,11 +11,19 @@ player = {"hp":20,"atk":4,"lvl":1,"xp":1}
 
 # Game settings
 hasMonster = False
-hasLoot = False
 roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
 gameStop = 0
 monsters=[]
 lastmonster=""
+progress=0
+
+# Loot!
+items = [
+        {"name":"Red Potion","hp":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!"},
+        {"name":"Green Potion","hp":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!"},
+        {"name":"Coffee","hp":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!"},
+        {"name":"Power Scroll","atk":2,"positive":1,"desc":"The power scroll increases your Atk by 1!"}
+]
 
 # Display the currently available player-commands
 def showCommands():
@@ -34,22 +42,34 @@ def parseCommand(command):
         lookRoom()
     elif command.upper() == "Q":
         gameStop = 1
-    elif command.upper() == "A":
+    elif command.upper() == "A" and hasMonster == True:
         attack()
 
-# Check the room for monsters and loot
+# Check the room for loot
+# Going to try a system of randomly finding good or bad items based on a find-roll
+# Items will activate or equip upon finding them, maybe we'll work on an inventory system another day.
 def lookRoom():
-    if hasLoot == False:
-        print("You can't find any loot in this area.\n")
+    global roomMsg
 
-    if hasMonster == False:
-        print("You can't see any monsters in this area.\n")
+    if player["hp"] > 1:
+        findroll = random.randint(1,20)
+        if findroll > 10:
+            roomMsg = "Wow you've found an item!"
+        else:
+            # Reducing player's HP by one if they don't find anything, just to be mean.
+            player["hp"] = player["hp"] - 1
+            roomMsg = "Can't find anything.\nLost 1 HP from all that not-finding.\n"
+    else:
+        roomMsg = "You don't have enough energy to find things right now.\n"
+    
 
 # Load a new area, this should generate monster(s) and item(s)
 def moveNext():
     global roomMsg
     global hasMonster
+    global progress
     roomMsg = "You step into the next room.\n"
+    progress = progress + 1
 
     # Creating a new room will always contain at least 1 monster, so set hasMonster to true
     hasMonster = True
@@ -78,6 +98,8 @@ def spawnMonster():
 
 def attack():
     global lastmonster
+    global roomMsg
+    global hasMonster
     for monster in monsters:
         # Attacking the monster
         atk = random.randint(1,player["atk"])
@@ -102,11 +124,14 @@ def attack():
             xpgain = random.randint(player["lvl"],xpmod)
             player["xp"] = player["xp"] + xpmod
 
-            print("{} defeated!".format(monsters[i]["name"]))
-            print("{} XP gained!".format(xpgain))
-            #roomMsg="{} defeated!".format(monsters[i]["name"])
+            #print("{} defeated!".format(monsters[i]["name"]))
+            #print("{} XP gained!".format(xpgain))
+            roomMsg="{} defeated!\n{} XP gained!\n".format(monsters[i]["name"],xpgain)
             del monsters[i]
             break
+
+    if len(monsters) < 1:
+        hasMonster=0
 
     # Trigger the really cool 8bit attack sound
     try:
@@ -119,7 +144,9 @@ def attack():
 def statCheck():
     global gameStop
     if player["hp"] <= 0:
-        print("\nYou've been eaten by a {}! Game Over! ¯\_(ツ)_/¯\n".format(lastmonster))
+        print("\nYou've been eaten by a {}! Game Over!".format(lastmonster))
+        print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
+        print(" ¯\_(ツ)_/¯\n")
         gameStop = 1
 
 os.system('clear')
