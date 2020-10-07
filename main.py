@@ -162,6 +162,11 @@ def attack():
             player["xp"] = player["xp"] + xpmod
 
             roomMsg="{} defeated!\n{} XP gained!\n".format(monsters[i]["name"],xpgain)
+            try:
+                playsound(os.path.join(__location__, 'defeat.mp3'))
+            except:
+                # Disable the sound effects if it's having trouble playing them
+                pass
 
             #Check to see if player leveled up
             if player["xp"] >= player["xpnext"]:
