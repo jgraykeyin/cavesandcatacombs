@@ -12,7 +12,7 @@ player = {"hp":20,"atk":4,"lvl":1,"xp":1}
 # Game settings
 hasMonster = False
 hasLoot = False
-roomMsg = ""
+roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
 gameStop = 0
 monsters=[]
 
@@ -62,12 +62,14 @@ def moveNext():
         x+=1
 
     print("Searching for the next area...")
-    playsound(os.path.join(__location__, "steps.mp3"))
+    try:
+        playsound(os.path.join(__location__, "steps.mp3"))
+    except:
+        pass
     os.system('clear')
 
 def spawnMonster():
     global monsters
-    
     lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
     monstername = random.choice(lines)
     hproll = random.randint(5,25)
@@ -75,13 +77,29 @@ def spawnMonster():
 
 def attack():
     for monster in monsters:
+        # Attacking the monster
         atk = random.randint(1,player["atk"])
         monster["hp"] = monster["hp"] - atk
 
-        level = player["lvl"] * random.randint(1,4)
-        counter = random.randint(1,level)
-        player["hp"] = player["hp"] - counter
+        if monster["hp"] > 0:
+            # Monster counter-attacking the player
+            level = player["lvl"] * random.randint(1,4)
+            counter = random.randint(1,level)
+            player["hp"] = player["hp"] - counter
+    
+    for i in range(len(monsters)):
+        if monsters[i]["hp"] < 1:
+            # print("{} defeated!".format(monsters[i]["name"]))
+            roomMsg="{} defeated!".format(monsters[i]["name"])
+            del monsters[i]
+            break
+
+    # Trigger the really cool 8bit attack sound
+    try:
         playsound(os.path.join(__location__, 'hit.mp3'))
+    except:
+        # Disable the sound effects if it's having trouble playing them
+        pass
     
 # Check to see if player has died or leveled up
 def statCheck():
@@ -107,6 +125,8 @@ while gameStop == 0:
         print("Monsters in this room:")
         for monster in monsters:
             print("* {} HP {}".format(monster["hp"],monster["name"]))
+    else:
+        hasMonster=False
 
     # Display the player stats
     print("\n{} -- HP:{} Atk:{} Lvl:{}".format(playername,player["hp"],player["atk"],player["lvl"]))
