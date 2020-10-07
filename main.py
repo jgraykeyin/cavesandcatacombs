@@ -7,7 +7,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 # Setup the player starts
 ########$ HP,Atk,Lvl,XP
-player = {"hpmax":20,"hp":20,"atk":4,"lvl":1,"xp":1,"xpnext":20}
+player = {"hpmax":20,"hp":20,"atk":5,"lvl":1,"xp":1,"xpnext":20}
 
 # Game settings
 hasMonster = False
@@ -17,6 +17,7 @@ monsters=[]
 lastmonster=""
 progress=0
 levelup=False
+lastboss=False
 itemdeath=""
 
 # Loot!
@@ -24,7 +25,7 @@ items = [
         {"name":"Red Potion","stattype":"hp","statnum":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!","qty":8},
         {"name":"Green Potion","stattype":"hp","statnum":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!","qty":15},
         {"name":"Coffee","stattype":"hp","statnum":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!","qty":5},
-        {"name":"Power Scroll","stattype":"atk","statnum":1,"positive":1,"desc":"The power scroll increases your Atk by 1!","qty":3}
+        {"name":"Power Scroll","stattype":"atk","statnum":2,"positive":1,"desc":"The power scroll increases your Atk by 2!","qty":3}
 ]
 
 # Display the currently available player-commands
@@ -114,9 +115,12 @@ def moveNext():
     x=0
     y=player["lvl"] * 2
     monsterRoll = random.randint(1,y)
-    while x < monsterRoll:
+    if progress == 20:
         spawnMonster()
-        x+=1
+    else:
+        while x < monsterRoll:
+            spawnMonster()
+            x+=1
 
     print("Searching for the next area...")
     try:
@@ -127,10 +131,17 @@ def moveNext():
 
 def spawnMonster():
     global monsters
-    lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
-    monstername = random.choice(lines)
-    hproll = random.randint(5,25)
-    monsters.append({"name":monstername,"hp":hproll})
+    global lastboss
+    if progress == 20:
+        monstername = "Cyber-Billy Bob"
+        monsters.append({"name":monstername,"hp":250})
+        lastboss = True
+    else:
+        lines = open(os.path.join(__location__, 'monsters.txt')).read().splitlines()
+        monstername = random.choice(lines)
+        limit = player["lvl"] * 14
+        hproll = random.randint(5,limit)
+        monsters.append({"name":monstername,"hp":hproll})
 
 def attack():
     global lastmonster
@@ -145,23 +156,21 @@ def attack():
         if monster["hp"] > 0:
             # Modifier to generate monster damage rolls...
             # TODO: turn this into a function, make it a little more dynamic
-            level = player["lvl"] * random.randint(1,4)
+            level = player["lvl"] * random.randint(1,3)
 
             # Monster counter-attacking the player
             counter = random.randint(1,level)
             player["hp"] = player["hp"] - counter
             if player["hp"] < 1:
                 lastmonster = monster["name"]
-    
-    for i in range(len(monsters)):
-        if monsters[i]["hp"] < 1:
+        elif monster["hp"] <= 0:
             #Modifier to generate xp gain
             # TODO: turn this into a function, maybe the same function as monster atk modifier?
             xpmod = player["lvl"] * 10
             xpgain = random.randint(player["lvl"],xpmod)
             player["xp"] = player["xp"] + xpmod
 
-            roomMsg="{} defeated!\n{} XP gained!\n".format(monsters[i]["name"],xpgain)
+            roomMsg="{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
             try:
                 playsound(os.path.join(__location__, 'defeat.mp3'))
             except:
@@ -178,8 +187,7 @@ def attack():
                 roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
                 levelup=True
 
-            del monsters[i]
-            break
+            monsters.remove(monster)
 
     if len(monsters) < 1:
         hasMonster=0
@@ -205,7 +213,7 @@ def statCheck():
             print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
 
-        highscore.write("{} / Areas Explored: {} / Level: {}\n".format(playername,progress, player["lvl"]))
+        highscore.write("{} =-= Areas Explored: {}/20 =-= Level: {}\n".format(playername,progress, player["lvl"]))
         highscore.close
         try:
             playsound(os.path.join(__location__, 'gameover.mp3'))
