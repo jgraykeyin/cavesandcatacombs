@@ -19,6 +19,7 @@ progress=0
 levelup=False
 lastboss=False
 itemdeath=""
+victory=False
 
 # Loot!
 hpmax = player["hpmax"]
@@ -30,7 +31,7 @@ items = [
         {"name":"Power Glove","stattype":"atk","statnum":3,"positive":1,"desc":"The power gloves increases your Atk by 3, it's so bad!","qty":3},
         {"name":"Magic Hero Sword","stattype":"atk","statnum":4,"positive":1,"desc":"You equip the hero sword to gain 4 Atk!","qty":2},
         {"name":"Slime on a stick","stattype":"atk","statnum":1,"positive":0,"desc":"Your equipment is covered in slime, lost 2 Atk!","qty":4},
-        {"name":"Cure-all Scroll","stattype":"hp","statnum":hpmax,"positive":1,"desc":"The cure scroll heals you entirely!","qty":5},
+        {"name":"Cure Scroll","stattype":"hp","statnum":20,"positive":1,"desc":"The cure scroll heals you for 20 HP!","qty":5},
         {"name":"Legendary Battle Staff","stattype":"atk","statnum":10,"positive":1,"desc":"The battle staff raises your Atk by 10!","qty":1}
 ]
 
@@ -39,6 +40,8 @@ def showCommands():
     global command
     if hasMonster == True:
         command = input("Available Commands: [Q]uit [L]ook [A]ttack >> ")
+    elif lastboss == True:
+        command = input("Available Commands: [Q]uit [Look]")
     else:
         command = input("Available Commands: [Q]uit [L]ook [M]ove >> ")
 
@@ -177,6 +180,9 @@ def attack():
             xpgain = random.randint(xpmin,xpmax)
             player["xp"] += xpgain
 
+            if victory == True:
+                gameStop=1
+
             roomMsg="{} defeated!\n{} XP gained!\n".format(monster["name"],xpgain)
             try:
                 playsound(os.path.join(__location__, 'defeat.mp3'))
@@ -279,3 +285,6 @@ while gameStop == 0:
     # Make sure player is still alive
     statCheck()
 
+if victory == True:
+    print("You've finished the game and stolen Billy Bob's treasure, good job!")
+    
