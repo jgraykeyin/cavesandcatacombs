@@ -5,39 +5,40 @@ from playsound import playsound
 # This should let files in the current folder be accessible
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-# Setup the player starts
-########$ HP,Atk,Lvl,XP
-player = {"hpmax":20,"hp":20,"atk":5,"lvl":1,"xp":1,"xpnext":20}
-
 # Game settings
-hasMonster = False
-roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
-gameStop = 0
-monsters=[]
-lastmonster=""
-progress=0
-levelup=False
-lastboss=False
-itemdeath=""
-victory=False
-fireqty=3
-firemax=3
-windqty=1
-progressbar = " | | | | | | | | | | | | | | | | | | | |"
+def initGame():
+    global player,hasMonster,roomMsg,gameStop,monsters,lastmonster,progress,levelup,lastboss,itemdeath,victory,fireqty,firemax,windqty,progressbar
+    player = {"hpmax":20,"hp":20,"atk":5,"lvl":1,"xp":1,"xpnext":20}
+    hasMonster = False
+    roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
+    gameStop = 0
+    monsters=[]
+    lastmonster=""
+    progress=0
+    levelup=False
+    lastboss=False
+    itemdeath=""
+    victory=False
+    fireqty=3
+    firemax=3
+    windqty=1
+    progressbar = " | | | | | | | | | | | | | | | | | | | |"
 
-# Loot!
-hpmax = player["hpmax"]
-items = [
-        {"name":"Red Potion","stattype":"hp","statnum":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!","qty":8},
-        {"name":"Green Potion","stattype":"hp","statnum":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!","qty":15},
-        {"name":"Coffee","stattype":"hp","statnum":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!","qty":5},
-        {"name":"Power Scroll","stattype":"atk","statnum":2,"positive":1,"desc":"The power scroll increases your Atk by 2!","qty":5},
-        {"name":"Power Glove","stattype":"atk","statnum":3,"positive":1,"desc":"The power gloves increases your Atk by 3, it's so bad!","qty":3},
-        {"name":"Magic Hero Sword","stattype":"atk","statnum":4,"positive":1,"desc":"You equip the hero sword to gain 4 Atk!","qty":2},
-        {"name":"Slime on a stick","stattype":"atk","statnum":1,"positive":0,"desc":"Your equipment is covered in slime, lost 2 Atk!","qty":4},
-        {"name":"Cure Scroll","stattype":"hp","statnum":20,"positive":1,"desc":"The cure scroll heals you for 20 HP!","qty":5},
-        {"name":"Legendary Battle Staff","stattype":"atk","statnum":10,"positive":1,"desc":"The battle staff raises your Atk by 10!","qty":1}
-]
+    # Loot!
+    hpmax = player["hpmax"]
+    items = [
+            {"name":"Red Potion","stattype":"hp","statnum":10,"positive":1,"desc":"Yum, red potions are great. Gained 10 HP!","qty":8},
+            {"name":"Green Potion","stattype":"hp","statnum":5,"positive":0,"desc":"You drank a poison potion and lost 5 HP!","qty":15},
+            {"name":"Coffee","stattype":"hp","statnum":20,"positive":1,"desc":"You drink the coffee and feel much better, gained 20 HP!","qty":5},
+            {"name":"Power Scroll","stattype":"atk","statnum":2,"positive":1,"desc":"The power scroll increases your Atk by 2!","qty":5},
+            {"name":"Power Glove","stattype":"atk","statnum":3,"positive":1,"desc":"The power gloves increases your Atk by 3, it's so bad!","qty":3},
+            {"name":"Magic Hero Sword","stattype":"atk","statnum":4,"positive":1,"desc":"You equip the hero sword to gain 4 Atk!","qty":2},
+            {"name":"Slime on a stick","stattype":"atk","statnum":1,"positive":0,"desc":"Your equipment is covered in slime, lost 2 Atk!","qty":4},
+            {"name":"Cure Scroll","stattype":"hp","statnum":20,"positive":1,"desc":"The cure scroll heals you for 20 HP!","qty":5},
+            {"name":"Legendary Battle Staff","stattype":"atk","statnum":10,"positive":1,"desc":"The battle staff raises your Atk by 10!","qty":1}
+        ]
+
+initGame()
 
 # Display the currently available player-commands
 def showCommands():
@@ -323,51 +324,59 @@ def statCheck():
         highscore.close()
         gameStop = 1
 
-os.system('clear')
-print("-=-=-=-=-=-=-=-=-=-=-=-")
-print("-= Caves & Catacombs =-")
-print("-=-=-=-=-=-=-=-=-=-=-=-")
-playername = input("Please enter your name: ")
-# os.system('clear')
-# Start a game loop
-while gameStop == 0:
-
-    # Check for any room-loading messages, then clear it.
-    if roomMsg:
-        if levelup is True:
-            # Trigger the level-up sound
-            try:
-                playsound(os.path.join(__location__, 'levelup.mp3'))
-            except:
-                # Disable the sound effects if it's having trouble playing them
-                pass
-            levelup = False
-        print(roomMsg)
-        roomMsg=""
-
-    # Check to see if we need to list our monsters
-    if len(monsters) > 0:
-        print("\nMonsters in this room:")
-        for monster in monsters:
-            print("* {} HP {}".format(monster["hp"],monster["name"]))
-    else:
-        hasMonster=False
-
-    # Display the player stats
-    print("\n{} -- HP:{}/{} Atk:{} Lvl:{}".format(playername,player["hp"],player["hpmax"],player["atk"],player["lvl"]))
-    print("\n{}\n".format(progressbar))
-
-    # Display the available commands.
-    showCommands()
-
+while True:
     os.system('clear')
+    print("-=-=-=-=-=-=-=-=-=-=-=-")
+    print("-= Caves & Catacombs =-")
+    print("-=-=-=-=-=-=-=-=-=-=-=-")
+    playername = input("Please enter your name: ")
+    # os.system('clear')
+    # Start a game loop
+    while gameStop == 0:
 
-    # Check for user input commands
-    parseCommand(command)
+        # Check for any room-loading messages, then clear it.
+        if roomMsg:
+            if levelup is True:
+                # Trigger the level-up sound
+                try:
+                    playsound(os.path.join(__location__, 'levelup.mp3'))
+                except:
+                    # Disable the sound effects if it's having trouble playing them
+                    pass
+                levelup = False
+            print(roomMsg)
+            roomMsg=""
 
-    # Make sure player is still alive
-    statCheck()
+        # Check to see if we need to list our monsters
+        if len(monsters) > 0:
+            print("\nMonsters in this room:")
+            for monster in monsters:
+                print("* {} HP {}".format(monster["hp"],monster["name"]))
+        else:
+            hasMonster=False
 
-if victory == True:
-    print("You've finished the game and stolen Billy Bob's treasure, good job!")
-    print("Purchase our DLC for a better ending!")
+        # Display the player stats
+        print("\n{} -- HP:{}/{} Atk:{} Lvl:{}".format(playername,player["hp"],player["hpmax"],player["atk"],player["lvl"]))
+        print("\n{}\n".format(progressbar))
+
+        # Display the available commands.
+        showCommands()
+
+        os.system('clear')
+
+        # Check for user input commands
+        parseCommand(command)
+
+        # Make sure player is still alive
+        statCheck()
+
+    if victory == True:
+        print("You've finished the game and stolen Billy Bob's treasure, good job!")
+        print("Purchase our DLC for a better ending!")
+
+    reset = input("\nTry again? Y or N: ")
+    if reset.upper() == "N":
+        break
+    elif reset.upper() == "Y":
+        initGame()
+        continue
