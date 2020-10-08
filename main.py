@@ -1,11 +1,6 @@
 import random
 import os
 from playsound import playsound
-# Trying to use pickle to handle the high-score file because a text file was not cutting it.
-# Not entirely sure how this works yet, but trying to figure it out.
-import pickle
-import collections
-
 
 # This should let files in the current folder be accessible
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -303,8 +298,7 @@ def statCheck():
     global gameStop
     if player["hp"] <= 0:
 
-        # fpath = (os.path.join(__location__, "highscores.txt"))
-        # highscore = open(fpath,"a")
+
         print("\n ¯\_(ツ)_/¯")
         if itemdeath != "":
             print("You've been thwarted by a {}!".format(itemdeath))
@@ -312,31 +306,12 @@ def statCheck():
             print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
 
-        fpath = (os.path.join(__location__, "highscores.pkl"))
-        high_scores = {playername: player["lvl"]}
-        with open(fpath,"wb") as out:
-            pickle.dump(high_scores, out)
-
         try:
             playsound(os.path.join(__location__, 'gameover.mp3'))
         except:
         # Disable the sound effects if it's having trouble playing them
             pass
 
-        Score = collections.namedtuple("Score", ["name","score"]) # just to make things easy
-        new_scores = Score(playername,player["lvl"])
-
-        with open(fpath,"rb") as in_:
-            high_scores = pickle.load(in_)
-        if new_scores.name not in high_scores:
-            high_scores[new_scores.name] = new_scores.score
-        with open(fpath,"wb") as out:
-            pickle.dump(high_scores, out)
-
-        print("\n{{TITLE:^{PAGE_WIDTH}}}".format(PAGE_WIDTH=80).format(TITLE="High Scores"))
-        print("-" * 80)
-        for name,score in high_scores.items():
-            print("{{name:>{col_width}}} Level: {{score:<{col_width}}}".format(col_width=(80-3)//2).format(name=name, score=score))
         gameStop = 1
 
 while True:
