@@ -22,6 +22,8 @@ itemdeath=""
 victory=False
 fireqty=3
 firemax=3
+windqty=1
+progressbar = " | | | | | | | | | | | | | | | | | | | |"
 
 # Loot!
 hpmax = player["hpmax"]
@@ -41,7 +43,9 @@ items = [
 def showCommands():
     global command
     if hasMonster == True:
-        if player["lvl"] >= 3:
+        if player["lvl"] >= 6:
+            command = input("Available Commands: [Q]uit [L]ook [A]ttack [F]ire Spell({}/{}) [W]ind Spell {}/1 >> ".format(fireqty,firemax,windqty))
+        elif player["lvl"] >= 3:
             command = input("Available Commands: [Q]uit [L]ook [A]ttack [F]ire Spell({}/{}) >> ".format(fireqty,firemax))
         elif player["lvl"] < 3:
             command = input("Available Commands: [Q]uit [L]ook [A]ttack >> ")
@@ -63,6 +67,8 @@ def parseCommand(command):
         attack()
     elif command.upper() == "F" and player["lvl"] >= 3 and fireqty > 0:
         firespell()
+    elif command.upper() == "W" and player["lvl"] >= 6 and windqty > 0:
+        windspell()
 
 # Check the room for loot
 # Going to try a system of randomly finding good or bad items based on a find-roll
@@ -122,8 +128,10 @@ def moveNext():
     global roomMsg
     global hasMonster
     global progress
+    global progressbar
     roomMsg = "You step into the next room.\n"
     progress = progress + 1
+    progressbar = "|=|" + progressbar[:-1]
 
     # Creating a new room will always contain at least 1 monster, so set hasMonster to true
     hasMonster = True
@@ -160,6 +168,16 @@ def spawnMonster():
         hproll = random.randint(5,limit)
         monsters.append({"name":monstername,"hp":hproll})
 
+def windspell():
+    global hasMonster
+    global roomMsg
+    global windqty
+    global monsters
+    monsters = []
+    roomMsg = "Wind magic blows away all monsters in the room. No XP gained, but you're safe for now..."
+    hasMonster = False
+    windqty=0
+    
 def firespell():
     global fireqty
     global hasMonster
@@ -190,18 +208,31 @@ def firespell():
 
             #Check to see if player leveled up
             if player["xp"] >= player["xpnext"]:
-                player["lvl"] += 1
-                player["atk"] += 2
-                player["hpmax"] += 5 * player["lvl"]
-                player["hp"] = player["hpmax"]
-                player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
-                roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
-                levelup=True
+                levelUp()
 
             monsters.remove(monster)
     roomMsg = roomMsg = "\nThe fire spell blasts all the monsters in the room!"
     if len(monsters) < 1:
         hasMonster=0
+
+def levelUp():
+    global fireqty
+    global player
+    global roomMsg
+    global levelup
+    global windqty
+    fireqty+=1
+    if fireqty > firemax:
+        fireqty = firemax
+    player["lvl"] += 1
+    if player["lvl"] % 2 == 0:
+        windqty = 1
+    player["atk"] += 2
+    player["hpmax"] += 5 * player["lvl"]
+    player["hp"] = player["hpmax"]
+    player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
+    roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
+    levelup=True
 
 def attack():
     global lastmonster
@@ -247,13 +278,7 @@ def attack():
 
             #Check to see if player leveled up
             if player["xp"] >= player["xpnext"]:
-                player["lvl"] += 1
-                player["atk"] += 2
-                player["hpmax"] += 5 * player["lvl"]
-                player["hp"] = player["hpmax"]
-                player["xpnext"] = (player["xpnext"] * 2) + (player["lvl"] * 5)
-                roomMsg = roomMsg + "\nYou've reached level {}!".format(player["lvl"])
-                levelup=True
+                levelUp()
 
             monsters.remove(monster)
 
@@ -330,9 +355,11 @@ while gameStop == 0:
 
     # Display the player stats
     print("\n{} -- HP:{}/{} Atk:{} Lvl:{}".format(playername,player["hp"],player["hpmax"],player["atk"],player["lvl"]))
+    print("\n{}\n".format(progressbar))
 
     # Display the available commands.
     showCommands()
+
     os.system('clear')
 
     # Check for user input commands
