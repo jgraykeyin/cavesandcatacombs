@@ -21,7 +21,6 @@ Text-based hack & slash python challenge project.
 * Level up
   * Leveling up increases player's stats and refills HP
 
-* High Scores list
 * Progress bar displays player traveling from level 1 to 20
 
 * Boss battle at level 20
