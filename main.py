@@ -1,13 +1,18 @@
 import random
 import os
 from playsound import playsound
+# Trying to use pickle to handle the high-score file because a text file was not cutting it.
+# Not entirely sure how this works yet, but trying to figure it out.
+import pickle
+import collections
+
 
 # This should let files in the current folder be accessible
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 # Game settings
 def initGame():
-    global player,hasMonster,roomMsg,gameStop,monsters,lastmonster,progress,levelup,lastboss,itemdeath,victory,fireqty,firemax,windqty,progressbar
+    global player,hasMonster,roomMsg,gameStop,monsters,lastmonster,progress,levelup,lastboss,itemdeath,victory,fireqty,firemax,windqty,progressbar,items,hpmax
     player = {"hpmax":20,"hp":20,"atk":5,"lvl":1,"xp":1,"xpnext":20}
     hasMonster = False
     roomMsg = "You see a stairway leading down to the catacombs of dooooom! Move to the next area to begin your adventure."
@@ -247,7 +252,7 @@ def attack():
         atk = random.randint(1,player["atk"])
         monster["hp"] = monster["hp"] - atk
 
-        roomMsg = "You hit the {} for {} HP\n".format(monster["name"],atk)
+        roomMsg = roomMsg + "You hit the {} for {} HP\n".format(monster["name"],atk)
 
         if monster["hp"] > 0:
             # Modifier to generate monster damage rolls...
@@ -255,7 +260,7 @@ def attack():
             level = player["lvl"] * random.randint(1,3)
             # Monster counter-attacking the player
             counter = random.randint(1,level)
-            roomMsg = roomMsg + "You take {} damage!".format(counter)
+            roomMsg = roomMsg + "You take {} damage from the {}!\n".format(counter,monster["name"])
             player["hp"] = player["hp"] - counter
             if player["hp"] < 1:
                 lastmonster = monster["name"]
@@ -298,8 +303,8 @@ def statCheck():
     global gameStop
     if player["hp"] <= 0:
 
-        fpath = (os.path.join(__location__, "highscores.txt"))
-        highscore = open(fpath,"a")
+        # fpath = (os.path.join(__location__, "highscores.txt"))
+        # highscore = open(fpath,"a")
         print("\n ¯\_(ツ)_/¯")
         if itemdeath != "":
             print("You've been thwarted by a {}!".format(itemdeath))
@@ -307,21 +312,31 @@ def statCheck():
             print("You've been eaten by a {}! Game Over!".format(lastmonster))
         print("You traveled through {} areas and reached level {}".format(progress,player["lvl"]))
 
-        highscore.write("{} =-= Areas Explored: {}/20 =-= Level: {}\n".format(playername,progress, player["lvl"]))
-        highscore.close
+        fpath = (os.path.join(__location__, "highscores.pkl"))
+        high_scores = {playername: player["lvl"]}
+        with open(fpath,"wb") as out:
+            pickle.dump(high_scores, out)
+
         try:
             playsound(os.path.join(__location__, 'gameover.mp3'))
         except:
         # Disable the sound effects if it's having trouble playing them
             pass
 
-        fpath = (os.path.join(__location__, "highscores.txt"))
-        highscore = open(fpath,"r")
-        print("Adventure Log:")
-        scores = highscore.readlines()
-        for score in scores:
-            print(score, end = '')
-        highscore.close()
+        Score = collections.namedtuple("Score", ["name","score"]) # just to make things easy
+        new_scores = Score(playername,player["lvl"])
+
+        with open(fpath,"rb") as in_:
+            high_scores = pickle.load(in_)
+        if new_scores.name not in high_scores:
+            high_scores[new_scores.name] = new_scores.score
+        with open(fpath,"wb") as out:
+            pickle.dump(high_scores, out)
+
+        print("\n{{TITLE:^{PAGE_WIDTH}}}".format(PAGE_WIDTH=80).format(TITLE="High Scores"))
+        print("-" * 80)
+        for name,score in high_scores.items():
+            print("{{name:>{col_width}}} Level: {{score:<{col_width}}}".format(col_width=(80-3)//2).format(name=name, score=score))
         gameStop = 1
 
 while True:
