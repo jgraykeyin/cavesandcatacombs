@@ -30,3 +30,7 @@ Text-based hack & slash python challenge project.
 ### Installation Notes:
 * Playsound library is required to run, please install with:
 `python3 -m pip install playsound`
+* Playsound on Mac OS may need pyobjc to be installed:
+`python3 -m pip install pyobjc`
+* Playsound on Linux may need gstreamer installed
+`sudo apt-get install gstreamer-1.0`
