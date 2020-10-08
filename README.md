@@ -27,4 +27,4 @@ Text-based hack & slash python challenge project.
 * Boss battle at level 20
 ** Defeating the boss ends game
 
-* Playsound library is required to run, please install with python3 -m pip install pillow
+* Playsound library is required to run, please install with python3 -m pip install playsound
