@@ -29,4 +29,4 @@ Text-based hack & slash python challenge project.
 
 ### Installation Notes:
 * Playsound library is required to run, please install with:
-`<addr>`python3 -m pip install playsound
+`python3 -m pip install playsound`
