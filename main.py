@@ -84,33 +84,36 @@ def lookRoom():
     if player["hp"] > 1:
         findroll = random.randint(1,20)
         if findroll > 10:
-            item = random.choice(items)
-            if item["stattype"] == "atk":
-                stype="atk"
+            if len(items) > 0:
+                item = random.choice(items)
+                if item["stattype"] == "atk":
+                    stype="atk"
+                else:
+                    stype="hp"
+
+                if item["positive"] == 1:
+                    statmod="+"
+                    player[stype] += item["statnum"]
+                else:
+                    statmod="-"
+                    player[stype] -= item["statnum"]
+
+                if player["hp"] <= 0:
+                    itemdeath = item["name"]
+                    gameStop=1
+
+                if player["hp"] > player["hpmax"]:
+                    player["hp"] = player["hpmax"]
+
+                roomMsg = "You found: {} ({}{} {})\n{}".format(item["name"],statmod,item["statnum"],item["stattype"].upper(),item["desc"])
+
+                # Delete the item from the list if we've found all of them
+                item["qty"] -= 1
+                if item["qty"] < 1:
+                    items.remove(item)
             else:
-                stype="hp"
-
-            if item["positive"] == 1:
-                statmod="+"
-                player[stype] += item["statnum"]
-            else:
-                statmod="-"
-                player[stype] -= item["statnum"]
-
-            if player["hp"] <= 0:
-                itemdeath = item["name"]
-                gameStop=1
-
-            if player["hp"] > player["hpmax"]:
-                player["hp"] = player["hpmax"]
-
-            roomMsg = "You found: {} ({}{} {})\n{}".format(item["name"],statmod,item["statnum"],item["stattype"].upper(),item["desc"])
-
-            # Delete the item from the list if we've found all of them
-            item["qty"] -= 1
-            if item["qty"] < 1:
-                items.remove(item)
-            
+                roomMsg = roomMsg + "No items left to find!"
+                
         else:
             # Reducing player's HP by one if they don't find anything, just to be mean.
             player["hp"] = player["hp"] - 1
@@ -297,7 +300,6 @@ def attack():
 def statCheck():
     global gameStop
     if player["hp"] <= 0:
-
 
         print("\n ¯\_(ツ)_/¯")
         if itemdeath != "":
