@@ -33,3 +33,6 @@ Text-based hack & slash python challenge project.
 `python3 -m pip install pyobjc`
 * Playsound on Linux may need gstreamer installed
 `sudo apt-get install gstreamer-1.0`
+
+### AWS Cloud9 Notes:
+* Please use the cloud9.py file to run the game if launching from Cloud9 Terminal
